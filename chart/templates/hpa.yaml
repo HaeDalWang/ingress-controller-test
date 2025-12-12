@@ -1,0 +1,40 @@
+{{- if .Values.autoscaling.enabled }}
+{{- if lt (int .Values.autoscaling.minReplicas) 1 }}
+{{- fail "autoscaling.minReplicas는 1 이상이어야 합니다. 0으로 설정하려면 External/Object 메트릭을 사용하도록 템플릿을 확장하세요." }}
+{{- end }}
+{{- $hasCPUMetric := .Values.autoscaling.targetCPUUtilizationPercentage }}
+{{- $hasMemoryMetric := .Values.autoscaling.targetMemoryUtilizationPercentage }}
+{{- if not (or $hasCPUMetric $hasMemoryMetric) }}
+{{- fail "autoscaling.enabled가 true이면 최소 하나의 metric(targetCPUUtilizationPercentage 또는 targetMemoryUtilizationPercentage)을 설정해야 합니다." }}
+{{- end }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "chart.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

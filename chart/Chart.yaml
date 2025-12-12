@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ing-test-app
+description: ingress test app
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.1.0"

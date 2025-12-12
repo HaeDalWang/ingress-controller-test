@@ -1,0 +1,120 @@
+global:
+  image:
+    tag: latest
+
+replicaCount: 2
+
+image:
+  repository: 863422182520.dkr.ecr.ap-northeast-2.amazonaws.com/env-loader
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8001
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources: {}
+
+# 프로브 설정 (테스트용 앱이므로 기본적으로 비활성화)
+# 사용하려면 아래 주석을 해제하고 설정하세요
+startupProbe: {}
+#  httpGet:
+#    path: /health/startup
+#    port: 8001
+#  failureThreshold: 30
+#  initialDelaySeconds: 5
+#  periodSeconds: 10
+#  timeoutSeconds: 5
+
+livenessProbe: {}
+#  httpGet:
+#    path: /health/live
+#    port: 8001
+#  failureThreshold: 3
+#  initialDelaySeconds: 10
+#  periodSeconds: 10
+#  timeoutSeconds: 5
+
+readinessProbe: {}
+#  httpGet:
+#    path: /health/ready
+#    port: 8001
+#  failureThreshold: 3
+#  initialDelaySeconds: 5
+#  periodSeconds: 5
+#  timeoutSeconds: 5
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# 예시:
+# - name: config-volume
+#   configMap:
+#     name: app-config
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# 예시:
+# - name: config-volume
+#   mountPath: /etc/config
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# 환경변수 설정 (Secret이나 ConfigMap 참조)
+envFrom: []
+# 예시:
+# - secretRef:
+#     name: env-loader-secret
+# - configMapRef:
+#     name: env-loader-config
+
+# 직접 환경변수 설정
+env: []
+# 예시:
+# - name: DATABASE_URL
+#   value: "postgresql://localhost:5432/db"
+# - name: JWT_SECRET
+#   valueFrom:
+#     secretKeyRef:
+#       name: env-loader-secret
+#       key: JWT_SECRET
