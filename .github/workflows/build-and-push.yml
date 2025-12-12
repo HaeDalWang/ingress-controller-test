@@ -15,6 +15,7 @@ on:
 env:
   SERVICE_NAME: ingress-echo              # 서비스 이름
   SERVICE_PATH: services/ingress-echo     # 서비스 경로
+  IMAGE_NAME: seungdobae/ingress-echo     # ECR 이미지 이름 (레지스트리 경로 포함)
   AWS_REGION: ap-northeast-2            # AWS 리전
   ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}  # ECR 레지스트리 주소
   AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}  # GitHub Actions OIDC Role ARN
@@ -57,8 +58,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
-            ${{ env.ECR_REGISTRY }}/${{ env.SERVICE_NAME }}:latest
+            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+            ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
