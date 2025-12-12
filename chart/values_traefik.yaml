@@ -1,6 +1,6 @@
 global:
   image:
-    tag: "ebaac1f"  # 배포할 이미지 태그
+    tag: "09ba036"
 
 ingress:
   enabled: true

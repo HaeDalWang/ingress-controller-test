@@ -1,6 +1,6 @@
 global:
   image:
-    tag: "ebaac1f"  # 배포할 이미지 태그
+    tag: "09ba036"
 
 # 콘텐트리 중앙에서 이미 사용하던 옵션 전부 등록
 ingress:
