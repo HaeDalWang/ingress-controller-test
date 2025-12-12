@@ -5,12 +5,19 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    {{- if eq .Values.ingress.className "traefik" }}
+    {{- if and .Values.traefik.middleware.enabled }}
+    traefik.ingress.kubernetes.io/middlewares: {{ $fullName }}-sticky,{{ $fullName }}-cors,{{ $fullName }}-headers
+    {{- end }}
+    traefik.ingress.kubernetes.io/redirect-to-https: "true"
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   {{- if .Values.ingress.tls }}

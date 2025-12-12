@@ -1,6 +1,6 @@
 apiVersion: v2
-name: ing-test-app
-description: ingress test app
+name: ingress-echo
+description: ingress echo test app
 
 type: application
 

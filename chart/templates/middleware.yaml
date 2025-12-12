@@ -1,0 +1,58 @@
+{{- if and .Values.ingress.enabled (eq .Values.ingress.className "traefik") .Values.traefik.middleware.enabled }}
+{{- $fullName := include "chart.fullname" . -}}
+---
+# Session Affinity (Sticky Sessions) Middleware
+# nginx의 session-cookie-name: route, session-cookie-samesite: Lax 등과 동일한 효과
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $fullName }}-sticky
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  sticky:
+    cookie:
+      name: {{ .Values.traefik.middleware.sticky.cookieName | default "route" }}
+      secure: {{ .Values.traefik.middleware.sticky.secure | default true }}
+      httpOnly: {{ .Values.traefik.middleware.sticky.httpOnly | default true }}
+      sameSite: {{ .Values.traefik.middleware.sticky.sameSite | default "Lax" }}
+---
+# CORS Middleware
+# nginx의 enable-cors, cors-allow-methods, cors-allow-headers와 동일한 효과
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $fullName }}-cors
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  cors:
+    allowOriginList: {{ .Values.traefik.middleware.cors.allowOriginList | toYaml | nindent 6 }}
+    allowMethods: {{ .Values.traefik.middleware.cors.allowMethods | toYaml | nindent 6 }}
+    allowHeaders: {{ .Values.traefik.middleware.cors.allowHeaders | toYaml | nindent 6 }}
+    exposeHeaders: {{ .Values.traefik.middleware.cors.exposeHeaders | toYaml | nindent 6 }}
+    maxAge: {{ .Values.traefik.middleware.cors.maxAge | default 86400 }}
+---
+# Security Headers Middleware
+# nginx의 configuration-snippet의 security headers와 동일한 효과
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $fullName }}-headers
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  headers:
+    {{- with .Values.traefik.middleware.headers.customRequestHeaders }}
+    customRequestHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.traefik.middleware.headers.customResponseHeaders }}
+    customResponseHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}
+

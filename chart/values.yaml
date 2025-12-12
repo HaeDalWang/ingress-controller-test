@@ -5,7 +5,7 @@ global:
 replicaCount: 2
 
 image:
-  repository: 863422182520.dkr.ecr.ap-northeast-2.amazonaws.com/env-loader
+  repository: 863422182520.dkr.ecr.ap-northeast-2.amazonaws.com/seungdobae/ingress-echo
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
