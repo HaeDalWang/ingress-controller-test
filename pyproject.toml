@@ -1,7 +1,7 @@
 [project]
-name = "contentree-app"
+name = "ingress-echo"
 version = "0.1.0"
-description = "Add your description here"
+description = "Ingress controller test echo app"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

@@ -1,0 +1,85 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# ============================================
+# 환경변수 (여기만 수정하면 됨!)
+# ============================================
+env:
+  SERVICE_NAME: ingress-echo              # 서비스 이름
+  SERVICE_PATH: services/ingress-echo     # 서비스 경로
+  AWS_REGION: ap-northeast-2            # AWS 리전
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}  # ECR 레지스트리 주소
+  AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}  # GitHub Actions OIDC Role ARN
+
+# OIDC 토큰 사용 권한
+permissions:
+  id-token: write   # OIDC 토큰 생성 권한
+  contents: write   # 코드 읽기/쓰기 권한 (values 파일 업데이트용)
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get commit SHA (7자리)
+        id: commit
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+            ${{ env.ECR_REGISTRY }}/${{ env.SERVICE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update values files with new image tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # values_nginx.yaml 업데이트 (global.image.tag)
+          sed -i 's/^    tag:.*/    tag: "${{ steps.commit.outputs.SHORT_SHA }}"/' chart/values_nginx.yaml
+          
+          # values_traefik.yaml 업데이트 (global.image.tag)
+          sed -i 's/^    tag:.*/    tag: "${{ steps.commit.outputs.SHORT_SHA }}"/' chart/values_traefik.yaml
+          
+          # 변경사항 확인
+          git diff
+
+      - name: Commit and push updated values files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add chart/values_nginx.yaml chart/values_traefik.yaml
+          git diff --staged --quiet || git commit -m "chore: update image tag to ${{ steps.commit.outputs.SHORT_SHA }}"
+          git push
+
