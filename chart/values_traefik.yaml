@@ -5,37 +5,12 @@ global:
 ingress:
   enabled: true
   className: traefik
-  # annotations는 ingress.yaml 템플릿에서 자동으로 추가됨 (Traefik Middleware 참조)
   annotations: {}
   hosts:
     - host: traefik.seungdobae.com
       paths:
         - path: /
           pathType: Prefix
-
-# Traefik Middleware 설정
-traefik:
-  middleware:
-    enabled: true
-    sticky:
-      cookieName: route
-      secure: true
-      httpOnly: true
-      sameSite: Lax
-    cors:
-      allowOriginList: ["*"]
-      allowMethods: ["GET", "POST", "HEAD", "OPTIONS"]
-      allowHeaders: ["X-Forwarded-For", "Content-Type", "Authorization"]
-      exposeHeaders: ["X-Forwarded-For"]
-      maxAge: 86400
-    headers:
-      # Security Headers
-      customResponseHeaders:
-        X-Content-Type-Options: "nosniff"
-        Pragma: "no-cache"
-        Cache-Control: "max-age=0, no-store, no-cache, must-revalidate"
-        X-XSS-Protection: "1;mode=block"
-        X-Frame-Options: "DENY"
 
 replicaCount: 2 # 컨테이너의 개수
 podDisruptionBudget: {}
