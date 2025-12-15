@@ -1,6 +1,6 @@
 global:
   image:
-    tag: "8ed7f6a"
+    tag: "1263d4c"
 
 # 콘텐트리 중앙에서 이미 사용하던 옵션 전부 등록
 ingress:
