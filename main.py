@@ -261,6 +261,11 @@ def generate_html_dashboard(request: Request):
                 <li><strong>테스트 방법:</strong> 브라우저 개발자 도구에서 다른 origin으로 요청하거나, curl로 <code>Origin</code> 헤더를 포함한 요청을 보내세요.</li>
                 <li>항상 CORS 헤더가 보이게 하려면 Headers 미들웨어를 사용하여 CORS 헤더를 직접 추가하는 방법을 사용하세요.</li>
             </ul>
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffc107;">
+                <a href="https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress-nginx/#limitations" target="_blank" style="color: #856404; text-decoration: none; font-weight: 500;">
+                    📚 Traefik 공식 문서: NGINX Ingress 제한사항 보기 →
+                </a>
+            </div>
         </div>
         ''' if controller_name.lower() == 'traefik' else ''}
     </div>
