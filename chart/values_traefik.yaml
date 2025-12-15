@@ -1,6 +1,6 @@
 global:
   image:
-    tag: "80aea78"
+    tag: "758d3d9"
 
 ingress:
   enabled: false
