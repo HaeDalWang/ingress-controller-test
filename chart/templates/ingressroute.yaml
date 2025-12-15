@@ -29,7 +29,9 @@ spec:
       middlewares:
         {{- range .middlewares }}
         - name: {{ .name }}
-          namespace: {{ .namespace | default $.Release.Namespace }}
+          {{- if .namespace }}
+          namespace: {{ .namespace }}
+          {{- end }}
         {{- end }}
       {{- end }}
       services:
