@@ -25,6 +25,7 @@ ingressRoute:
         # - name: https-redirect@file
         - name: security-headers@file
         - name: cors@file
+      # Ref: https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/#configuration-example
       sticky:
         cookie:
           name: route
