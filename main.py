@@ -25,23 +25,34 @@ def generate_html_dashboard(request: Request):
     else:
         cookies_html = "<tr><td colspan='2'>쿠키 없음</td></tr>"
     
-    # 헤더 정보 포맷팅 (중요한 것만)
-    important_headers = [
+    # 요청 헤더 정보 포맷팅
+    request_headers_html = ""
+    request_headers_list = [
         "host", "user-agent", "x-forwarded-for", "x-real-ip", 
-        "origin", "referer", "accept", "accept-language"
+        "origin", "referer", "accept", "accept-language",
+        "x-forwarded-proto", "x-forwarded-host", "x-forwarded-port"
     ]
-    headers_html = ""
-    for header_name in important_headers:
-        header_value = headers.get(header_name.lower(), "없음")
-        if header_value != "없음":
-            headers_html += f"<tr><td><strong>{header_name}</strong></td><td>{header_value}</td></tr>"
+    for header_name in request_headers_list:
+        header_value = headers.get(header_name.lower(), None)
+        if header_value:
+            request_headers_html += f"<tr><td><strong>{header_name}</strong></td><td>{header_value}</td></tr>"
+    
+    # CORS 관련 헤더 (요청에서 확인 가능한 것)
+    cors_request_headers = ["origin", "access-control-request-method", "access-control-request-headers"]
+    cors_request_html = ""
+    for header_name in cors_request_headers:
+        header_value = headers.get(header_name.lower(), None)
+        if header_value:
+            cors_request_html += f"<tr><td><strong>{header_name}</strong></td><td>{header_value}</td></tr>"
+    if not cors_request_html:
+        cors_request_html = "<tr><td colspan='2'>CORS 요청 헤더 없음</td></tr>"
     
     html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingress Controller Test Dashboard</title>
+    <title>Ingress Controller Test Dashboard - {controller_name.upper()}</title>
     <style>
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -151,8 +162,7 @@ def generate_html_dashboard(request: Request):
 </head>
 <body>
     <div class="header">
-        <h1>🚀 Ingress Controller Test Dashboard</h1>
-        <div class="controller">Controller: <strong>{controller_name}</strong></div>
+        <h1>🚀 Ingress Controller Test Dashboard - <strong>{controller_name.upper()}</strong></h1>
         <div class="timestamp">Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div>
     </div>
 
@@ -198,13 +208,41 @@ def generate_html_dashboard(request: Request):
     </div>
 
     <div class="section">
-        <h2>📋 주요 헤더 정보</h2>
+        <h2>📋 요청 헤더 정보</h2>
         <table>
             <tr>
                 <th>헤더 이름</th>
                 <th>값</th>
             </tr>
-            {headers_html}
+            {request_headers_html}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>🌐 CORS 헤더 (응답)</h2>
+        <div id="cors-headers" style="color: #666; font-style: italic;">로딩 중...</div>
+        <table id="cors-headers-table" style="display: none;">
+            <tr>
+                <th>헤더 이름</th>
+                <th>값</th>
+            </tr>
+        </table>
+        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+            <strong>CORS 요청 헤더:</strong>
+            <table style="margin-top: 10px;">
+                {cors_request_html}
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔒 보안 헤더 (응답)</h2>
+        <div id="security-headers" style="color: #666; font-style: italic;">로딩 중...</div>
+        <table id="security-headers-table" style="display: none;">
+            <tr>
+                <th>헤더 이름</th>
+                <th>값</th>
+            </tr>
         </table>
     </div>
 
@@ -263,6 +301,82 @@ def generate_html_dashboard(request: Request):
             <li>페이지를 새로고침하면 최신 쿠키/헤더 정보가 표시됩니다</li>
         </ul>
     </div>
+
+    <script>
+        // 응답 헤더 확인 (CORS 및 보안 헤더)
+        async function loadResponseHeaders() {{
+            try {{
+                const response = await fetch('/');
+                const corsHeaders = {{
+                    'access-control-allow-origin': response.headers.get('access-control-allow-origin'),
+                    'access-control-allow-methods': response.headers.get('access-control-allow-methods'),
+                    'access-control-allow-headers': response.headers.get('access-control-allow-headers'),
+                    'access-control-allow-credentials': response.headers.get('access-control-allow-credentials'),
+                    'access-control-expose-headers': response.headers.get('access-control-expose-headers'),
+                    'access-control-max-age': response.headers.get('access-control-max-age')
+                }};
+                
+                const securityHeaders = {{
+                    'x-content-type-options': response.headers.get('x-content-type-options'),
+                    'x-frame-options': response.headers.get('x-frame-options'),
+                    'x-xss-protection': response.headers.get('x-xss-protection'),
+                    'strict-transport-security': response.headers.get('strict-transport-security'),
+                    'content-security-policy': response.headers.get('content-security-policy'),
+                    'pragma': response.headers.get('pragma'),
+                    'cache-control': response.headers.get('cache-control'),
+                    'referrer-policy': response.headers.get('referrer-policy')
+                }};
+
+                // CORS 헤더 표시
+                const corsTable = document.getElementById('cors-headers-table');
+                const corsDiv = document.getElementById('cors-headers');
+                let corsFound = false;
+                
+                for (const [name, value] of Object.entries(corsHeaders)) {{
+                    if (value) {{
+                        corsFound = true;
+                        const row = corsTable.insertRow();
+                        row.insertCell(0).innerHTML = '<strong>' + name + '</strong>';
+                        row.insertCell(1).textContent = value;
+                    }}
+                }}
+                
+                if (corsFound) {{
+                    corsDiv.style.display = 'none';
+                    corsTable.style.display = 'table';
+                }} else {{
+                    corsDiv.textContent = 'CORS 응답 헤더 없음';
+                }}
+
+                // 보안 헤더 표시
+                const securityTable = document.getElementById('security-headers-table');
+                const securityDiv = document.getElementById('security-headers');
+                let securityFound = false;
+                
+                for (const [name, value] of Object.entries(securityHeaders)) {{
+                    if (value) {{
+                        securityFound = true;
+                        const row = securityTable.insertRow();
+                        row.insertCell(0).innerHTML = '<strong>' + name + '</strong>';
+                        row.insertCell(1).textContent = value;
+                    }}
+                }}
+                
+                if (securityFound) {{
+                    securityDiv.style.display = 'none';
+                    securityTable.style.display = 'table';
+                }} else {{
+                    securityDiv.textContent = '보안 응답 헤더 없음';
+                }}
+            }} catch (error) {{
+                document.getElementById('cors-headers').textContent = '헤더 로드 실패: ' + error.message;
+                document.getElementById('security-headers').textContent = '헤더 로드 실패: ' + error.message;
+            }}
+        }}
+        
+        // 페이지 로드 시 헤더 확인
+        loadResponseHeaders();
+    </script>
 </body>
 </html>"""
     return html
