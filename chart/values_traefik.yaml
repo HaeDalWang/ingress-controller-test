@@ -18,6 +18,7 @@ ingressRoute:
   entryPoints:
     - web
   annotations:
+    external-dns.alpha.kubernetes.io/target: traefik.seungdobae.com
     traefik.ingress.kubernetes.io/router.middlewares: |
       https-redirect@file,
       security-headers@file,
