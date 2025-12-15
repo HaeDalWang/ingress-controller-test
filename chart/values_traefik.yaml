@@ -22,7 +22,7 @@ ingressRoute:
     - match: Host(`traefik.seungdobae.com`)
       kind: Rule
       middlewares:
-        - name: https-redirect@file
+        # - name: https-redirect@file
         - name: security-headers@file
         - name: cors@file
       sticky:
