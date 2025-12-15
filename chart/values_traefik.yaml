@@ -17,14 +17,17 @@ ingressRoute:
   enabled: true
   entryPoints:
     - web
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: |
-      https-redirect@file,
-      security-headers@file,
-      cors@file
+  annotations: {}
   routes:
     - match: Host(`traefik.seungdobae.com`)
       kind: Rule
+      middlewares:
+        - name: https-redirect
+          namespace: default
+        - name: security-headers
+          namespace: default
+        - name: cors
+          namespace: default
       sticky:
         cookie:
           name: route
