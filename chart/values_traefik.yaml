@@ -23,11 +23,8 @@ ingressRoute:
       kind: Rule
       middlewares:
         - name: https-redirect
-          namespace: default
         - name: security-headers
-          namespace: default
         - name: cors
-          namespace: default
       sticky:
         cookie:
           name: route
