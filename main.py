@@ -208,6 +208,17 @@ def generate_html_dashboard(request: Request):
                 route 쿠키: {'있음' if 'route' in cookies else '없음'}
             </span>
         </div>
+        {f'''
+        <div style="margin-top: 20px; padding: 15px; background-color: #e7f3ff; border-left: 4px solid #2196F3; border-radius: 4px;">
+            <strong style="color: #1976D2;">ℹ️ route 쿠키 값이 다른 이유:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #1976D2;">
+                <li><strong>nginx:</strong> 백엔드 서비스의 IP:Port를 기반으로 해시 값을 생성합니다. 형식: <code>백엔드해시.가중치.인덱스.체크섬|SHA1해시</code></li>
+                <li><strong>Traefik:</strong> 자체 알고리즘으로 백엔드 식별자를 생성합니다. 더 짧고 간단한 형식입니다.</li>
+                <li>각 컨트롤러가 서로 다른 알고리즘을 사용하므로 쿠키 값이 다르지만, 모두 같은 목적(세션 어피니티)을 달성합니다.</li>
+                <li>이것은 정상적인 동작이며, 각 컨트롤러가 독립적으로 동작하기 때문입니다.</li>
+            </ul>
+        </div>
+        ''' if 'route' in cookies else ''}
     </div>
 
     <div class="section">
@@ -240,6 +251,18 @@ def generate_html_dashboard(request: Request):
                 {cors_request_html}
             </table>
         </div>
+        {f'''
+        <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <strong style="color: #856404;">⚠️ Traefik CORS 미들웨어 동작 방식:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #856404;">
+                <li>Traefik의 CORS 미들웨어는 <strong>실제 CORS 요청</strong>이 있을 때만 응답 헤더를 추가합니다.</li>
+                <li>같은 origin에서 요청하면 CORS 헤더가 보이지 않을 수 있습니다 (정상 동작).</li>
+                <li>nginx와 달리 항상 헤더를 추가하지 않습니다.</li>
+                <li><strong>테스트 방법:</strong> 브라우저 개발자 도구에서 다른 origin으로 요청하거나, curl로 <code>Origin</code> 헤더를 포함한 요청을 보내세요.</li>
+                <li>항상 CORS 헤더가 보이게 하려면 Headers 미들웨어를 사용하여 CORS 헤더를 직접 추가하는 방법을 사용하세요.</li>
+            </ul>
+        </div>
+        ''' if controller_name.lower() == 'traefik' else ''}
     </div>
 
     <div class="section">
