@@ -4,6 +4,8 @@ global:
 
 replicaCount: 2
 
+revisionHistoryLimit: 3
+
 image:
   repository: 863422182520.dkr.ecr.ap-northeast-2.amazonaws.com/seungdobae/ingress-echo
   pullPolicy: IfNotPresent
