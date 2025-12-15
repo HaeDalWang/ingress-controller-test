@@ -40,12 +40,15 @@ def generate_html_dashboard(request: Request):
     # CORS 관련 헤더 (요청에서 확인 가능한 것)
     cors_request_headers = ["origin", "access-control-request-method", "access-control-request-headers"]
     cors_request_html = ""
+    cors_request_found = False
     for header_name in cors_request_headers:
         header_value = headers.get(header_name.lower(), None)
         if header_value:
+            cors_request_found = True
             cors_request_html += f"<tr><td><strong>{header_name}</strong></td><td>{header_value}</td></tr>"
-    if not cors_request_html:
-        cors_request_html = "<tr><td colspan='2'>CORS 요청 헤더 없음</td></tr>"
+    
+    if not cors_request_found:
+        cors_request_html = "<tr><td colspan='2' style='text-align: center; color: #999;'>CORS 요청 헤더 없음</td></tr>"
     
     html = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -227,9 +230,13 @@ def generate_html_dashboard(request: Request):
                 <th>값</th>
             </tr>
         </table>
-        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+        <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
             <strong>CORS 요청 헤더:</strong>
-            <table style="margin-top: 10px;">
+            <table style="margin-top: 10px; width: 100%;">
+                <tr>
+                    <th style="padding: 8px; background-color: #f8f9fa;">헤더 이름</th>
+                    <th style="padding: 8px; background-color: #f8f9fa;">값</th>
+                </tr>
                 {cors_request_html}
             </table>
         </div>
