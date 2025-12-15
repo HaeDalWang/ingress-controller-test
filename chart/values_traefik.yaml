@@ -3,7 +3,7 @@ global:
     tag: "f329c4a"
 
 ingress:
-  enabled: true
+  enabled: false
   className: traefik
   annotations: {}
   hosts:
@@ -11,6 +11,26 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+
+# Traefik IngressRoute 설정
+ingressRoute:
+  enabled: true
+  entryPoints:
+    - web
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: |
+      https-redirect@file,
+      security-headers@file,
+      cors@file
+  routes:
+    - match: Host(`traefik.seungdobae.com`)
+      kind: Rule
+      sticky:
+        cookie:
+          name: route
+          httpOnly: true
+          secure: true
+          sameSite: lax
 
 replicaCount: 2 # 컨테이너의 개수
 podDisruptionBudget: {}

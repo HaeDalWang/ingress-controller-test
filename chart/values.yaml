@@ -42,6 +42,14 @@ ingress:
           pathType: ImplementationSpecific
   tls: []
 
+# Traefik IngressRoute 설정 (traefik일 때 사용)
+ingressRoute:
+  enabled: false
+  entryPoints: []
+  annotations: {}
+  routes: []
+  tls: {}
+
 resources: {}
 
 # 프로브 설정 (테스트용 앱이므로 기본적으로 비활성화)
