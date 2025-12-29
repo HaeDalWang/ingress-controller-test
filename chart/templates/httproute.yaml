@@ -73,6 +73,8 @@ spec:
               {{- if $.Values.gateway.features.securityHeaders.cacheControl }}
               - name: Cache-Control
                 value: {{ $.Values.gateway.features.securityHeaders.cacheControl | quote }}
+              - name: Pragma
+                value: "no-cache"
               {{- end }}
               {{- if $.Values.gateway.features.securityHeaders.xssProtection }}
               - name: X-XSS-Protection

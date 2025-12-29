@@ -1,4 +1,4 @@
-{{- if or .Values.gateway.features.backend.timeout .Values.gateway.features.backend.sticky.enabled -}}
+{{- if or .Values.gateway.features.backend.timeout .Values.gateway.features.backend.sticky.enabled .Values.gateway.features.backend.maxRequestBodySize -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
@@ -26,5 +26,9 @@ spec:
         attributes:
           {{- toYaml .Values.gateway.features.backend.sticky.attributes | nindent 10 }}
         {{- end }}
+  {{- end }}
+  {{- if .Values.gateway.features.backend.maxRequestBodySize }}
+  requestBuffer:
+    limit: {{ .Values.gateway.features.backend.maxRequestBodySize }}
   {{- end }}
 {{- end }}

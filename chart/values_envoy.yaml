@@ -46,10 +46,11 @@ gateway:
 
     backend:
       timeout: 60s
+      maxRequestBodySize: 100Mi  # 요청 본문 크기 제한 (초과 시 413 에러)
       sticky:
         enabled: true
         cookieName: route
-        ttl: 24h  # 쿠키 자동 생성에 필수!
+        ttl: 24h  # 쿠키 자동 생성에 필수
         attributes:
           SameSite: Lax
           Secure: "true"
