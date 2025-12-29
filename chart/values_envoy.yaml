@@ -49,8 +49,11 @@ gateway:
       sticky:
         enabled: true
         cookieName: route
-        secure: true
-        httpOnly: true
+        ttl: 24h  # 쿠키 자동 생성에 필수!
+        attributes:
+          SameSite: Lax
+          Secure: "true"
+          HttpOnly: "true"
 
 replicaCount: 2
 

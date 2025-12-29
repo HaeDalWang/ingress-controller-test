@@ -21,5 +21,10 @@ spec:
       type: Cookie
       cookie:
         name: {{ .Values.gateway.features.backend.sticky.cookieName }}
+        ttl: {{ .Values.gateway.features.backend.sticky.ttl | default "24h" }}
+        {{- if .Values.gateway.features.backend.sticky.attributes }}
+        attributes:
+          {{- toYaml .Values.gateway.features.backend.sticky.attributes | nindent 10 }}
+        {{- end }}
   {{- end }}
 {{- end }}
