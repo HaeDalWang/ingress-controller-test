@@ -214,6 +214,7 @@ def generate_html_dashboard(request: Request):
             <ul style="margin: 10px 0 0 20px; color: #1976D2;">
                 <li><strong>nginx:</strong> 백엔드 서비스의 IP:Port를 기반으로 해시 값을 생성합니다. 형식: <code>백엔드해시.가중치.인덱스.체크섬|SHA1해시</code></li>
                 <li><strong>Traefik:</strong> 자체 알고리즘으로 백엔드 식별자를 생성합니다. 더 짧고 간단한 형식입니다.</li>
+                <li><strong>Envoy Gateway:</strong> ConsistentHash 기반으로 쿠키를 자동 생성합니다. TTL 설정이 필수이며, 첫 요청 시 Set-Cookie로 응답합니다.</li>
                 <li>각 컨트롤러가 서로 다른 알고리즘을 사용하므로 쿠키 값이 다르지만, 모두 같은 목적(세션 어피니티)을 달성합니다.</li>
                 <li>이것은 정상적인 동작이며, 각 컨트롤러가 독립적으로 동작하기 때문입니다.</li>
             </ul>
@@ -268,6 +269,25 @@ def generate_html_dashboard(request: Request):
             </div>
         </div>
         ''' if controller_name.lower() == 'traefik' else ''}
+        {f'''
+        <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e9; border-left: 4px solid #4CAF50; border-radius: 4px;">
+            <strong style="color: #2E7D32;">⚠️ Envoy Gateway CORS & 쿠키 동작 방식:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #2E7D32;">
+                <li><strong>CORS:</strong> SecurityPolicy로 설정하며, <strong>Cross-Origin 요청</strong>에만 응답 헤더가 추가됩니다.</li>
+                <li>같은 origin(Same-Origin)에서 요청하면 CORS 헤더가 보이지 않습니다 (정상 동작).</li>
+                <li><strong>테스트 방법:</strong> <code>curl -H "Origin: https://other.com" URL</code> 또는 다른 도메인에서 요청하세요.</li>
+                <li><strong>route 쿠키:</strong> BackendTrafficPolicy의 ConsistentHash Cookie로 설정됩니다.</li>
+                <li>쿠키가 자동 생성되려면 <strong>ttl 설정이 필수</strong>입니다 (예: 24h).</li>
+                <li>첫 요청 시 <code>Set-Cookie: route=...</code> 헤더로 응답하며, 이후 요청에서 같은 백엔드로 라우팅됩니다.</li>
+                <li><strong>보안 헤더:</strong> HTTPRoute의 ResponseHeaderModifier filter로 추가됩니다 (SecurityPolicy에서는 미지원).</li>
+            </ul>
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #4CAF50;">
+                <a href="https://gateway.envoyproxy.io/latest/tasks/traffic/http-routing/" target="_blank" style="color: #2E7D32; text-decoration: none; font-weight: 500;">
+                    📚 Envoy Gateway 공식 문서: HTTP Routing 보기 →
+                </a>
+            </div>
+        </div>
+        ''' if controller_name.lower() == 'envoy-gateway' else ''}
     </div>
 
     <div class="section">
