@@ -80,6 +80,9 @@ jobs:
           # values_traefik.yaml 업데이트 (global.image.tag)
           sed -i 's/^    tag:.*/    tag: "${{ steps.commit.outputs.SHORT_SHA }}"/' chart/values_traefik.yaml
           
+          # values_envoy.yaml 업데이트 (global.image.tag)
+          sed -i 's/^    tag:.*/    tag: "${{ steps.commit.outputs.SHORT_SHA }}"/' chart/values_envoy.yaml
+          
           # 변경사항 확인
           git diff
 
@@ -88,7 +91,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add chart/values_nginx.yaml chart/values_traefik.yaml
+          git add chart/values_nginx.yaml chart/values_traefik.yaml chart/values_envoy.yaml
           git diff --staged --quiet || git commit -m "chore: update image tag to ${{ steps.commit.outputs.SHORT_SHA }}"
           git push
 
