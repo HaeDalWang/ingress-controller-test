@@ -14,7 +14,7 @@ spec:
   cors:
     allowOrigins:
       {{- range .Values.gateway.features.cors.allowOrigins }}
-      - exact: {{ . | quote }}
+      - {{ . | quote }}
       {{- end }}
     allowMethods:
       {{- toYaml .Values.gateway.features.cors.allowMethods | nindent 6 }}

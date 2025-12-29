@@ -15,7 +15,9 @@ spec:
   {{- end }}
   {{- if .Values.gateway.features.backend.sticky.enabled }}
   loadBalancer:
+    type: ConsistentHash
     consistentHash:
+      type: Cookie
       cookie:
         name: {{ .Values.gateway.features.backend.sticky.cookieName }}
   {{- end }}

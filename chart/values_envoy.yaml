@@ -13,7 +13,11 @@ gateway:
   enabled: true
   name: eg
   namespace: envoy-gateway-system
-  listener: https   # gateway listener 이름
+  
+  # 리스너 설정 (Gateway에 정의된 리스너 이름)
+  listeners:
+    http: http    # 80 포트 리스너 이름
+    https: https  # 443 포트 리스너 이름
 
   hosts:
     - host: envoy.joins.seungdobae.com
@@ -21,6 +25,7 @@ gateway:
         - path: /
 
   features:
+    # HTTP → HTTPS 강제 리다이렉트 (http 리스너에서만 동작)
     redirect:
       enabled: true
       statusCode: 301
