@@ -6,8 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   targetRef:
-    group: ""
-    kind: Service
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
     name: {{ .Release.Name }}
   {{- if .Values.gateway.features.backend.timeout }}
   timeout:
