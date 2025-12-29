@@ -1,0 +1,22 @@
+{{- if or .Values.gateway.features.backend.timeout .Values.gateway.features.backend.sticky.enabled -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ .Release.Name }}
+  {{- if .Values.gateway.features.backend.timeout }}
+  timeout:
+    request: {{ .Values.gateway.features.backend.timeout }}
+  {{- end }}
+  {{- if .Values.gateway.features.backend.sticky.enabled }}
+  loadBalancer:
+    consistentHash:
+      cookie:
+        name: {{ .Values.gateway.features.backend.sticky.cookieName }}
+  {{- end }}
+{{- end }}

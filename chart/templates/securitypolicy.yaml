@@ -1,0 +1,43 @@
+{{- if or .Values.gateway.features.cors.enabled .Values.gateway.features.securityHeaders.enabled -}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ .Release.Name }}-security
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: {{ .Release.Name }}
+  
+  {{- if .Values.gateway.features.cors.enabled }}
+  cors:
+    allowOrigins:
+      {{- range .Values.gateway.features.cors.allowOrigins }}
+      - exact: {{ . | quote }}
+      {{- end }}
+    allowMethods:
+      {{- toYaml .Values.gateway.features.cors.allowMethods | nindent 6 }}
+    allowHeaders:
+      {{- toYaml .Values.gateway.features.cors.allowHeaders | nindent 6 }}
+    allowCredentials: {{ .Values.gateway.features.cors.allowCredentials }}
+  {{- end }}
+
+  {{- if .Values.gateway.features.securityHeaders.enabled }}
+  headers: # Security Headers 설정
+    response:
+      add:
+      {{- if .Values.gateway.features.securityHeaders.frameDeny }}
+        - name: X-Frame-Options
+          value: DENY
+      {{- end }}
+      {{- if .Values.gateway.features.securityHeaders.contentTypeNosniff }}
+        - name: X-Content-Type-Options
+          value: nosniff
+      {{- end }}
+      {{- if .Values.gateway.features.securityHeaders.cacheControl }}
+        - name: Cache-Control
+          value: {{ .Values.gateway.features.securityHeaders.cacheControl }}
+      {{- end }}
+  {{- end }}
+{{- end }}

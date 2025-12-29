@@ -52,6 +52,14 @@ ingressRoute:
   routes: []
   tls: {}
 
+# Envoy Gateway HTTPRoute 설정 (Gateway API 사용)
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  hostnames: []
+  rules: []
+
 resources: {}
 
 # 프로브 설정 (테스트용 앱이므로 기본적으로 비활성화)

@@ -1,0 +1,72 @@
+global:
+  image:
+    tag: "48e7506"
+
+ingress:
+  enabled: false
+
+ingressRoute:
+  enabled: false
+
+# Envoy Gateway HTTPRoute 설정 (Gateway API)
+gateway:
+  enabled: true
+  name: eg
+  namespace: envoy-gateway-system
+  listener: https   # gateway listener 이름
+
+  hosts:
+    - host: envoy.joins.seungdobae.com
+      paths:
+        - path: /
+
+  features:
+    redirect:
+      enabled: true
+      statusCode: 301
+
+    cors:
+      enabled: true
+      allowOrigins: ["*"]
+      allowMethods: ["GET","POST","OPTIONS"]
+      allowHeaders: ["X-Forwarded-For"]
+      allowCredentials: true
+
+    securityHeaders:
+      enabled: true
+      frameDeny: true
+      contentTypeNosniff: true
+      cacheControl: "no-store"
+
+    backend:
+      timeout: 60s
+      sticky:
+        enabled: true
+        cookieName: route
+        secure: true
+        httpOnly: true
+
+replicaCount: 2
+
+env:
+- name: CONTROLLER_NAME
+  value: "envoy-gateway"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 256m
+    memory: 256Mi
+
+# 오토스케일링 설정
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget: {}
+
