@@ -11,7 +11,8 @@ spec:
     name: {{ .Release.Name }}
   {{- if .Values.gateway.features.backend.timeout }}
   timeout:
-    request: {{ .Values.gateway.features.backend.timeout }}
+    http:
+      requestTimeout: {{ .Values.gateway.features.backend.timeout }}
   {{- end }}
   {{- if .Values.gateway.features.backend.sticky.enabled }}
   loadBalancer:
