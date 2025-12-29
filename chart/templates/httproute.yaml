@@ -57,6 +57,28 @@ spec:
         - path:
             type: PathPrefix
             value: {{ .path }}
+      {{- if $.Values.gateway.features.securityHeaders.enabled }}
+      filters:
+        - type: ResponseHeaderModifier
+          responseHeaderModifier:
+            add:
+              {{- if $.Values.gateway.features.securityHeaders.frameDeny }}
+              - name: X-Frame-Options
+                value: DENY
+              {{- end }}
+              {{- if $.Values.gateway.features.securityHeaders.contentTypeNosniff }}
+              - name: X-Content-Type-Options
+                value: nosniff
+              {{- end }}
+              {{- if $.Values.gateway.features.securityHeaders.cacheControl }}
+              - name: Cache-Control
+                value: {{ $.Values.gateway.features.securityHeaders.cacheControl | quote }}
+              {{- end }}
+              {{- if $.Values.gateway.features.securityHeaders.xssProtection }}
+              - name: X-XSS-Protection
+                value: "1; mode=block"
+              {{- end }}
+      {{- end }}
       backendRefs:
         - name: {{ $.Release.Name }}
           port: {{ $.Values.service.port }}

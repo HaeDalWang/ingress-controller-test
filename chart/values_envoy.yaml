@@ -41,6 +41,7 @@ gateway:
       enabled: true
       frameDeny: true
       contentTypeNosniff: true
+      xssProtection: true
       cacheControl: "no-store"
 
     backend:
