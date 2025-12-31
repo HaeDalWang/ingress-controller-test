@@ -53,6 +53,9 @@ ingressRoute:
   tls: {}
 
 # Envoy Gateway HTTPRoute 설정 (Gateway API 사용)
+gateway:
+  enabled: false
+
 httpRoute:
   enabled: false
   annotations: {}

@@ -1,4 +1,4 @@
-{{- if .Values.gateway.enabled -}}
+{{- if and .Values.gateway .Values.gateway.enabled -}}
 {{- if .Values.gateway.features.redirect.enabled }}
 # ============================================
 # HTTP → HTTPS 리다이렉트용 HTTPRoute (80 포트)

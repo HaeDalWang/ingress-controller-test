@@ -1,4 +1,4 @@
-{{- if .Values.gateway.features.cors.enabled -}}
+{{- if and .Values.gateway (and .Values.gateway.enabled .Values.gateway.features.cors.enabled) -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:

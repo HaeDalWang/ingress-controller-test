@@ -1,3 +1,4 @@
+{{- if and .Values.gateway .Values.gateway.enabled -}}
 {{- if or .Values.gateway.features.backend.timeout .Values.gateway.features.backend.sticky.enabled .Values.gateway.features.backend.maxRequestBodySize -}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
@@ -31,4 +32,5 @@ spec:
   requestBuffer:
     limit: {{ .Values.gateway.features.backend.maxRequestBodySize }}
   {{- end }}
+{{- end }}
 {{- end }}
