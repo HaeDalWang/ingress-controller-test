@@ -1,0 +1,56 @@
+global:
+  image:
+    tag: "329a6b0"
+
+# AWS Load Balancer Controller (ALB)용 설정
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    # ALB 기본 설정
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    
+    # 리스너 및 SSL 설정
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/backend-protocol: "HTTP"
+    
+    # 인증서 및 리소스 그룹화 (Terraform 등에서 주입 권장)
+    # alb.ingress.kubernetes.io/certificate-arn: ${lb_acm_certificate_arn}
+    alb.ingress.kubernetes.io/group.name: apps
+    
+    # 헬스체크 설정 (ALB Target Group용)
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/success-codes: "200"
+
+  hosts:
+    - host: alb.seungdobae.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+replicaCount: 2 # 컨테이너의 개수
+podDisruptionBudget: {}
+
+env:
+- name: CONTROLLER_NAME
+  value: "aws-load-balancer-controller"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 256m
+    memory: 256Mi
+
+# 오토스케일링 설정
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
