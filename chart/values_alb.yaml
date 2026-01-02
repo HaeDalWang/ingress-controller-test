@@ -4,7 +4,7 @@ global:
 
 # AWS Load Balancer Controller (ALB)용 설정
 ingress:
-  enabled: true
+  enabled: false
   className: alb
   annotations:
     # ALB 기본 설정
