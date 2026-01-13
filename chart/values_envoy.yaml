@@ -16,11 +16,11 @@ gateway:
   
   # 리스너 설정 (Gateway에 정의된 리스너 이름)
   listeners:
-    http: http    # 80 포트 리스너 이름
+    #http: http    # 80 포트 리스너 이름
     https: https  # 443 포트 리스너 이름
 
   hosts:
-    - host: envoy.joins.seungdobae.com
+    - host: envoy.joins.net
       paths:
         - path: /
 
