@@ -11,7 +11,8 @@ ingressRoute:
 # Envoy Gateway HTTPRoute 설정 (Gateway API)
 gateway:
   enabled: true
-  name: eg
+  #name: eg
+  name: envoygateway-9443
   namespace: envoy-gateway-system
   
   # 리스너 설정 (Gateway에 정의된 리스너 이름)
