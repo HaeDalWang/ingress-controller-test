@@ -21,7 +21,7 @@ gateway:
     https: https  # 443 포트 리스너 이름
 
   hosts:
-    - host: envoy.joins.net
+    - host: envoy.sd.seungdobae.com
       paths:
         - path: /
 
